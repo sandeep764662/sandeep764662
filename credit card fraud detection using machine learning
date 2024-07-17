@@ -1,0 +1,37 @@
+# Importing necessary libraries
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import IsolationForest
+from sklearn.metrics import classification_report, confusion_matrix
+
+# Load the dataset (you can replace this with your actual dataset)
+# Assuming the dataset has columns 'Amount' and 'Class' where 'Class' is 1 for fraud and 0 for non-fraud transactions
+# Replace 'creditcard.csv' with your dataset path
+data = pd.read_csv('creditcard.csv')
+
+# Splitting the data into features (X) and target (y)
+X = data.drop('Class', axis=1)  # Features
+y = data['Class']               # Target variable (fraud or not)
+
+# Splitting data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Creating the Isolation Forest model
+model = IsolationForest(n_estimators=100, max_samples='auto', contamination=float(len(y_train[y_train == 1]))/len(y_train), random_state=42, verbose=0)
+
+# Training the model
+model.fit(X_train)
+
+# Predicting on the test set
+y_pred = model.predict(X_test)
+
+# Converting predictions to 0 (non-fraud) and 1 (fraud)
+y_pred[y_pred == 1] = 0
+y_pred[y_pred == -1] = 1
+
+# Evaluating the model
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
